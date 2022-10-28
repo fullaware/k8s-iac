@@ -9,7 +9,7 @@
 
     - name: create .kube directory
       become: yes
-      become_user: kube
+      become_user: fullaware
       file:
         path: $HOME/.kube
         state: directory
@@ -25,19 +25,6 @@
     - name: install Pod network
       become: yes
       become_user: fullaware
-      shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml 
+      shell: kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
       args:
         chdir: $HOME
-        
-    - name: Get the token for joining the worker nodes
-      become: yes
-      become_user: fullaware
-      shell: kubeadm token create  --print-join-command
-      register: kubernetes_join_command
-
-    - debug:
-      msg: "{{ kubernetes_join_command.stdout }}"
-
-    - name: Copy join command to local file.
-      become: yes
-      local_action: copy content="{{ kubernetes_join_command.stdout_lines[0] }}" dest="/tmp/kubernetes_join_command" mode=0777
