@@ -22,9 +22,9 @@
         remote_src: yes
         owner: fullaware
 
-    - name: install Pod network
+    - name: install Pod network Antrea
       become: yes
       become_user: fullaware
-      shell: kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
+      shell: kubectl apply -f https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/antrea.yml
       args:
         chdir: $HOME

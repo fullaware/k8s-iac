@@ -1,6 +1,6 @@
 [controls]
-control ansible_host=10.28.28.44 ansible_user=fullaware
+control ansible_host=10.28.28.44 
 
 [workers]
-worker01 ansible_host=10.28.28.45 ansible_user=fullaware
-worker02 ansible_host=10.28.28.46 ansible_user=fullaware
+worker01 ansible_host=10.28.28.45
+worker02 ansible_host=10.28.28.46
