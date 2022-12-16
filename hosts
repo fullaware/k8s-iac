@@ -1,6 +1,7 @@
 [controls]
-control ansible_host=10.28.28.44 
+control0 ansible_host=10.28.28.60 ansible_user=ubuntu
 
 [workers]
-worker01 ansible_host=10.28.28.45
-worker02 ansible_host=10.28.28.46
+worker0 ansible_host=10.28.28.90 ansible_user=ubuntu
+worker1 ansible_host=10.28.28.91 ansible_user=ubuntu
+worker2 ansible_host=10.28.28.92 ansible_user=ubuntu

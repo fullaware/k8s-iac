@@ -1,0 +1,7 @@
+all:
+  children:
+    pve:
+      hosts:
+        proxmox-master:
+          ansible_host: 10.28.28.10
+          ansible_user: "root"

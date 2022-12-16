@@ -9,7 +9,7 @@
 
     - name: create .kube directory
       become: yes
-      become_user: fullaware
+      become_user: ubuntu
       file:
         path: $HOME/.kube
         state: directory
@@ -18,13 +18,13 @@
     - name: copies admin.conf to user's kube config
       copy:
         src: /etc/kubernetes/admin.conf
-        dest: /home/fullaware/.kube/config
+        dest: /home/ubuntu/.kube/config
         remote_src: yes
-        owner: fullaware
+        owner: ubuntu
 
     - name: install Pod network Antrea
       become: yes
-      become_user: fullaware
+      become_user: ubuntu
       shell: kubectl apply -f https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/antrea.yml
       args:
         chdir: $HOME
