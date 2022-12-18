@@ -31,9 +31,13 @@ cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
 deb https://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-get install -y kubelet=1.25.5-00 kubeadm=1.25.5-00 kubectl=1.25.5-00
 sudo apt-mark hold kubelet kubeadm kubectl
 
+
+sudo apt install qemu-guest-agent -y
+sudo systemctl enable qemu-guest-agent
+sudo systemctl start qemu-guest-agent
 # On the control plane node only, initialize the cluster and set up kubectl access.
 sudo kubeadm init --pod-network-cidr 172.12.0.0/16
 
@@ -43,13 +47,17 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 kubectl get nodes
 
+# If things don't work out RESET
+sudo kubeadm reset -f
+sudo rm -rf /etc/cni/net.d
+sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X
 # Install the Calico network add-on.
 
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+# kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 
 # Install Antrea network add-on.
 
-# kubectl apply -f https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/antrea.yml
+kubectl apply -f https://raw.githubusercontent.com/antrea-io/antrea/main/build/yamls/antrea.yml
 
 # Get the join command (this command is also printed during kubeadm init . Feel free to simply copy it from there).
 
@@ -76,25 +84,35 @@ kubectl -n kube-system edit deploy metrics-server
         - --kubelet-preferred-address-types=InternalIP
 
 # Install NFS Storage Class
+# NOTE: Install nfs-common on all nodes
+# sudo apt install nfs-common -y
 # NOTE: NFS export parameters
 # /mnt/nfsdir     10.28.28.0/24(rw,sync,no_subtree_check,no_root_squash)
 
-helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+# helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
 
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-  --create-namespace \
-  --namespace nfs-provisioner \
-  --set nfs.server=10.28.28.30 \
-  --set nfs.path=/mnt/nfsdir \
-  --set storageClass.onDelete=true
+# helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+#   --create-namespace \
+#   --namespace nfs-provisioner \
+#   --set nfs.server=10.28.28.30 \
+#   --set nfs.path=/mnt/pool0/nfs \
+#   --set storageClass.onDelete=true
 
-kubectl patch storageclass nfs-client -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+# kubectl patch storageclass nfs-client -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+# Install OpenEBS Local PV Hostpath volumes will be created under /var/openebs/local
+
+kubectl apply -f https://openebs.github.io/charts/openebs-operator-lite.yaml 
+kubectl apply -f https://openebs.github.io/charts/openebs-lite-sc.yaml
+kubectl patch storageclass openebs-hostpath -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
 
 # Install Metatllb Load Balancer
 
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.5/config/manifests/metallb-native.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
 
-# ipaddresspool.yaml
+cat <<EOF | kubectl create -f -
+---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
@@ -103,13 +121,14 @@ metadata:
 spec:
   addresses:
   - 10.28.28.70-10.28.28.79
-
-# l2advertisement.yaml
+---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: example
   namespace: metallb-system
+EOF
+
 
 # Install Contour Ingress HTTPProxy
 

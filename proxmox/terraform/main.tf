@@ -9,7 +9,7 @@ resource "proxmox_vm_qemu" "control_plane" {
   cores             = 4
   sockets           = "1"
   cpu               = "host"
-  memory            = 4098
+  memory            = 8192
   scsihw            = "virtio-scsi-pci"
   bootdisk          = "scsi0"
   # Activate QEMU agent for this VM
@@ -18,7 +18,7 @@ resource "proxmox_vm_qemu" "control_plane" {
   disk {
     size            = "20G"
     type            = "scsi"
-    storage         = "local-lvm"
+    storage         = "pool-500gbssd"
   }
 
   network {
@@ -43,7 +43,7 @@ resource "proxmox_vm_qemu" "worker_nodes" {
   cores             = 4
   sockets           = "1"
   cpu               = "host"
-  memory            = 4098
+  memory            = 8192
   scsihw            = "virtio-scsi-pci"
   bootdisk          = "scsi0"
   # Activate QEMU agent for this VM
@@ -52,7 +52,7 @@ resource "proxmox_vm_qemu" "worker_nodes" {
   disk {
     size            = "20G"
     type            = "scsi"
-    storage         = "local-lvm"
+    storage         = "pool-500gbssd"
   }
 
   network {

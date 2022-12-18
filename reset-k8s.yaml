@@ -1,0 +1,21 @@
+---
+- hosts: "controls, workers"
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+  become_user: root
+  gather_facts: yes
+  connection: ssh
+
+  tasks:
+    - name: kubeadm reset
+      shell: |
+              sudo kubeadm reset -f
+
+    - name: rm -rf /etc/cni/net.d
+      shell: |
+              sudo rm -rf /etc/cni/net.d
+
+    - name: reset iptables
+      shell: |
+              sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X

@@ -6,7 +6,7 @@
     vm:
       cloud_image_url: https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
       cloud_image_path: /tmp/ubuntu-server-amd64.qcow2
-      template_id: 3000
+      template_id: 9000
       template_name: ubuntu-cloudinit-template
       template_memory: 4096
   tasks:
@@ -21,15 +21,15 @@
       become: yes
 
     - name: import disk image
-      command: "qm importdisk {{ vm.template_id }} {{ vm.cloud_image_path }} local-lvm"
+      command: "qm importdisk {{ vm.template_id }} {{ vm.cloud_image_path }} pool-500gbssd"
       become: yes
 
     - name: configure VM to use imported image
-      command: "qm set {{ vm.template_id }} --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-{{ vm.template_id }}-disk-0"
+      command: "qm set {{ vm.template_id }} --scsihw virtio-scsi-pci --scsi0 pool-500gbssd:vm-{{ vm.template_id }}-disk-0"
       become: yes
 
     - name: add cloud-init image as CDROM
-      command: "qm set {{ vm.template_id }} --ide2 local-lvm:cloudinit"
+      command: "qm set {{ vm.template_id }} --ide2 pool-500gbssd:cloudinit"
       become: yes
 
     - name: configure boot from the image

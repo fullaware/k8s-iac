@@ -1,0 +1,1 @@
+ansible-playbook -i hosts reset-k8s.yaml --ask-become-pass
