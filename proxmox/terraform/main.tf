@@ -1,6 +1,6 @@
 resource "proxmox_vm_qemu" "control_plane" {
   count             = 1
-  name              = "control${count.index}.k8s.cluster"
+  name              = "control-plane${count.index}.k8s.cluster"
   target_node       = "${var.pm_node}"
 
   clone             = "ubuntu-cloudinit-template"
@@ -16,7 +16,7 @@ resource "proxmox_vm_qemu" "control_plane" {
   agent = 1
 
   disk {
-    size            = "20G"
+    size            = "32G"
     type            = "scsi"
     storage         = "pool-500gbssd"
   }
@@ -34,7 +34,7 @@ resource "proxmox_vm_qemu" "control_plane" {
 
 resource "proxmox_vm_qemu" "worker_nodes" {
   count             = 3
-  name              = "worker${count.index}.k8s.cluster"
+  name              = "worker-node${count.index}.k8s.cluster"
   target_node       = "${var.pm_node}"
 
   clone             = "ubuntu-cloudinit-template"
@@ -50,7 +50,7 @@ resource "proxmox_vm_qemu" "worker_nodes" {
   agent = 1
   
   disk {
-    size            = "20G"
+    size            = "32G"
     type            = "scsi"
     storage         = "pool-500gbssd"
   }

@@ -6,7 +6,7 @@
     vm:
       cloud_image_url: https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
       cloud_image_path: /tmp/ubuntu-server-amd64.qcow2
-      template_id: 9000
+      template_id: 9100
       template_name: ubuntu-cloudinit-template
       template_memory: 4096
   tasks:

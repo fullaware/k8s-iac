@@ -61,10 +61,10 @@ kubectl apply -f https://raw.githubusercontent.com/antrea-io/antrea/main/build/y
 
 # Get the join command (this command is also printed during kubeadm init . Feel free to simply copy it from there).
 
-kubeadm token create --print-join-command
+# kubeadm token create --print-join-command
 # Copy the join command from the control plane node. Run it on each worker node as root (i.e. with sudo ).
 
-sudo kubeadm join ...
+# sudo kubeadm join ...
 
 # On the control plane node, verify all nodes in your cluster are ready. Note that it may take a few moments for all of the nodes to
 # enter the READY state.
@@ -74,14 +74,25 @@ kubectl get nodes
 # Install Metrics
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 # Fix issue with local TLS not allowing insecure connection
-kubectl -n kube-system edit deploy metrics-server 
+# kubectl -n kube-system edit deploy metrics-server 
 
-# add the parameters below right after image: k8s.gcr.io/metrics-server-amd64:v0.3.1 line:
+# add the parameters below 
 
+cat << EOF | sudo tee patch-metrics-server.yaml
+---
+spec:
+  template:
+    spec:
+      containers:
+      - name: metrics-server
+        image: k8s.gcr.io/metrics-server/metrics-server:v0.6.2      
         command:
         - /metrics-server
         - --kubelet-insecure-tls
         - --kubelet-preferred-address-types=InternalIP
+EOF
+
+kubectl -n kube-system patch deploy metrics-server --type merge --patch-file patch-metrics-server.yaml
 
 # Install NFS Storage Class
 # NOTE: Install nfs-common on all nodes
@@ -129,6 +140,23 @@ metadata:
   namespace: metallb-system
 EOF
 
+cat <<EOF | kubectl create -f -
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 10.28.28.80-10.28.28.89
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: example
+  namespace: metallb-system
+EOF
 
 # Install Contour Ingress HTTPProxy
 
