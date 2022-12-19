@@ -16,6 +16,11 @@
         dest: "{{ vm.cloud_image_path }}"
         mode: 0700
 
+    - name : patch cloud image with qemu-guest-agent
+      command: "apt install libguestfs-tools -y"
+      command: "virt-customize -a /tmp/ubuntu-server-amd64.qcow2 --install qemu-guest-agent"
+      become: yes
+    
     - name: create a VM to use as a template
       command: "qm create {{ vm.template_id }} --name {{ vm.template_name }} --memory {{ vm.template_memory }} --net0 virtio,bridge=vmbr0"
       become: yes
