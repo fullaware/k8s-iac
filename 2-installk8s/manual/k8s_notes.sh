@@ -78,21 +78,20 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 
 # add the parameters below 
 
-cat << EOF | sudo tee patch-metrics-server.yaml
+cat << EOF | tee patch-metrics-server.yaml
 ---
 spec:
   template:
     spec:
       containers:
-      - name: metrics-server
-        image: k8s.gcr.io/metrics-server/metrics-server:v0.6.2      
+      - name: metrics-server     
         command:
         - /metrics-server
         - --kubelet-insecure-tls
         - --kubelet-preferred-address-types=InternalIP
 EOF
 
-kubectl -n kube-system patch deploy metrics-server --type merge --patch-file patch-metrics-server.yaml
+kubectl -n kube-system patch deploy metrics-server --patch-file patch-metrics-server.yaml
 
 # Install OpenEBS Local PV Hostpath volumes will be created under /var/openebs/local
 

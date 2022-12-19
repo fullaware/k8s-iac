@@ -50,13 +50,13 @@ To install K8s on new VMs:
 - update [2-installk8s/hosts](2-installk8s/hosts) as needed; replace `ansible_host` IPs to match your environment.
 - from `2-installk8s` directory, run:
   ```
-  ansible-playbook -i hosts install-k8s.yaml --ask-become-pass
+  ansible-playbook -i hosts install-k8s.yaml -K
   ```
 
 To bootstrap the cluster with `kubeadm`:
 - from `2-installk8s` directory, run:
   ```
-  ansible-playbook -i hosts controls.yaml --ask-become-pass
+  ansible-playbook -i hosts controls.yaml -K
   ```
 
 To join the cluster from the workers:
