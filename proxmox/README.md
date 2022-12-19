@@ -34,7 +34,7 @@ To provision VMs:
 - from [terraform](terraform) directory, run
   ```
   terraform init
-  terraform plan -var="pm_user=root@pam" -var="pm_password=<PVE root password>" -out plan
+  terraform plan -var='pm_user=root@pam' -var='pm_password=<PASSWORD>' -out plan
 
   terraform apply "plan"
   ```

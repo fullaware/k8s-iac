@@ -48,9 +48,9 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubectl get nodes
 
 # If things don't work out RESET
-sudo kubeadm reset -f
-sudo rm -rf /etc/cni/net.d
-sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X
+# sudo kubeadm reset -f
+# sudo rm -rf /etc/cni/net.d
+# sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X
 # Install the Calico network add-on.
 
 # kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
@@ -140,29 +140,12 @@ metadata:
   namespace: metallb-system
 EOF
 
-cat <<EOF | kubectl create -f -
----
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: first-pool
-  namespace: metallb-system
-spec:
-  addresses:
-  - 10.28.28.80-10.28.28.89
----
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  name: example
-  namespace: metallb-system
-EOF
-
 # Install Contour Ingress HTTPProxy
 
 kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
 
-# httpproxy.yaml
+cat << EOF | sudo tee httpproxy.yaml
+---
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
 metadata:
@@ -177,11 +160,18 @@ spec:
       services:
         - name: car-demo
           port: 8080
+EOF
 
 # Portainer
+helm repo add portainer https://portainer.github.io/k8s/
+helm repo update
+helm install --create-namespace -n portainer portainer portainer/portainer \
+    --set service.type=LoadBalancer \
+    --set enterpriseEdition.enabled=true \ # Omit this line if Community Edition
+    --set tls.force=true
 
 # Prometheus and Grafana
-https://www.fosstechnix.com/install-prometheus-and-grafana-on-kubernetes-using-helm/
+#     https://www.fosstechnix.com/install-prometheus-and-grafana-on-kubernetes-using-helm/
 # Install to --namespace monitoring
 
 # Install Jenkins
