@@ -121,6 +121,7 @@ kubectl patch storageclass openebs-hostpath -p '{"metadata": {"annotations":{"st
 # Install Metatllb Load Balancer
 
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
+#  EDIT Addresses to fit your cluster
 
 cat <<EOF | kubectl create -f -
 ---
@@ -162,97 +163,9 @@ spec:
           port: 8080
 EOF
 
-# Portainer
-helm repo add portainer https://portainer.github.io/k8s/
-helm repo update
-helm install --create-namespace -n portainer portainer portainer/portainer \
-    --set service.type=LoadBalancer \
-    --set enterpriseEdition.enabled=true \ # Omit this line if Community Edition
-    --set tls.force=true
+# Install Portainer Business Edition (Free for 5 nodes) using LoadBalancer
+kubectl apply -n portainer -f https://downloads.portainer.io/ee2-16/portainer-lb.yaml
 
 # Prometheus and Grafana
 #     https://www.fosstechnix.com/install-prometheus-and-grafana-on-kubernetes-using-helm/
 # Install to --namespace monitoring
-
-# Install Jenkins
-
-# jenkins-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: jenkins
-spec:
-  ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
-  selector:
-    app: jenkins-server
-  sessionAffinity: None
-  type: LoadBalancer
-status:
-  loadBalancer: {}
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: jenkins-jnlp
-spec:
-  type: ClusterIP
-  ports:
-    - port: 50000
-      targetPort: 50000
-  selector:
-    app: jenkins-server
-    
-# jenkins-pvc.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jenkins-pvc
-  namespace: jenkins
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 3Gi
-
-# jenkins-deploy.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: jenkins
-  namespace: jenkins
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jenkins-server
-  template:
-    metadata:
-      labels:
-        app: jenkins-server
-    spec:
-      containers:
-        - name: jenkins
-          image: jenkins/jenkins:lts
-          ports:
-            - name: httpport
-              containerPort: 8080
-            - name: jnlpport
-              containerPort: 50000
-          volumeMounts:
-            - name: jenkins-data
-              mountPath: /var/jenkins_home
-      volumes:
-        - name: jenkins-data
-          persistentVolumeClaim:
-              claimName: jenkins-pvc
-
-
-
-# Configure Kubernetes Plugin for Jenkins
-https://illya-chekrygin.com/2017/08/26/configuring-certificates-for-jenkins-kubernetes-plugin-0-12/
