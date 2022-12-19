@@ -16,8 +16,11 @@
         dest: "{{ vm.cloud_image_path }}"
         mode: 0700
 
-    - name : patch cloud image with qemu-guest-agent
+    - name : install libguestfs-tools
       command: "apt install libguestfs-tools -y"
+      become: yes
+
+    - name : patch cloud image with qemu-guest-agent
       command: "virt-customize -a /tmp/ubuntu-server-amd64.qcow2 --install qemu-guest-agent"
       become: yes
     
