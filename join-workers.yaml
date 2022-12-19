@@ -1,22 +1,33 @@
 ---
 - hosts: controls
   become: yes
-  gather_facts: false
+  become_method: sudo
+  gather_facts: true
   tasks:
-    - name: Get the token for joining the worker nodes
-      become: yes
-      become_user: ubuntu
+    - name: Get the token for joining the nodes with Kuberentes master.
       shell: kubeadm token create  --print-join-command
       register: kubernetes_join_command
-
     - debug:
         msg: "{{ kubernetes_join_command.stdout }}"
+    - name: Copy join command to local file.
+      local_action: copy content="{{ kubernetes_join_command.stdout_lines[0] }}" dest="/tmp/kubernetes_join_command" mode=0777
 
 - hosts: workers
   become: yes
   tasks:
-
-    - name: Join the Worker nodes to the cluster.
+    - name: Copy join command to worker nodes.
       become: yes
-      command: kubeadm join 10.28.28.60:6443 --token qcbvgv.3xqrwpoats5kh0pa --discovery-token-ca-cert-hash sha256:f7c26528a59288ba80bbf3c9f26626895a54879f50e4d5febd1597196ae3727a
+      become_method: sudo
+      become_user: ubuntu
+      copy:
+        src: /tmp/kubernetes_join_command
+        dest: /tmp/kubernetes_join_command
+        mode: 0777   
+    - name: Join the Worker nodes with the master.
+      become: yes
+      become_method: sudo
+      become_user: ubuntu
+      command: sh /tmp/kubernetes_join_command
       register: joined_or_not
+    - debug:
+        msg: "{{ joined_or_not.stdout }}"
