@@ -59,6 +59,12 @@ To bootstrap the cluster with `kubeadm`:
   ansible-playbook -i hosts controls.yaml --ask-become-pass
   ```
 
+To join the cluster from the workers:
+- from `2-installk8s` directory, run:
+  ```
+  ansible-playbook -i hosts join-workers.yaml -K
+  ```
+
 Please see [2-installk8s/k8s_notes.sh](2-installk8s/k8s_notes.sh) for instructions to install [`metrics-server`](https://github.com/kubernetes-sigs/metrics-server), loadbalancer [`metallb`](https://metallb.org/installation/), storage [`OpenEBS`](https://openebs.io/docs/user-guides/localpv-hostpath#install), ingress [`contour`](https://projectcontour.io/getting-started/#option-1-yaml)
 
 

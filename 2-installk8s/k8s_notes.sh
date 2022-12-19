@@ -94,23 +94,6 @@ EOF
 
 kubectl -n kube-system patch deploy metrics-server --type merge --patch-file patch-metrics-server.yaml
 
-# Install NFS Storage Class
-# NOTE: Install nfs-common on all nodes
-# sudo apt install nfs-common -y
-# NOTE: NFS export parameters
-# /mnt/nfsdir     10.28.28.0/24(rw,sync,no_subtree_check,no_root_squash)
-
-# helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
-
-# helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-#   --create-namespace \
-#   --namespace nfs-provisioner \
-#   --set nfs.server=10.28.28.30 \
-#   --set nfs.path=/mnt/pool0/nfs \
-#   --set storageClass.onDelete=true
-
-# kubectl patch storageclass nfs-client -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-
 # Install OpenEBS Local PV Hostpath volumes will be created under /var/openebs/local
 
 kubectl apply -f https://openebs.github.io/charts/openebs-operator-lite.yaml 
@@ -144,24 +127,6 @@ EOF
 # Install Contour Ingress HTTPProxy
 
 kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
-
-cat << EOF | sudo tee httpproxy.yaml
----
-apiVersion: projectcontour.io/v1
-kind: HTTPProxy
-metadata:
-  name: car-demo
-  namespace: car-demo
-spec:
-  virtualhost:
-    fqdn: car-demo.10.28.28.73.nip.io # IP address of envoy LoadBalancer
-  routes:
-    - conditions:
-      - prefix: /
-      services:
-        - name: car-demo
-          port: 8080
-EOF
 
 # Install Portainer Business Edition (Free for 5 nodes) using LoadBalancer
 kubectl apply -n portainer -f https://downloads.portainer.io/ee2-16/portainer-lb.yaml
