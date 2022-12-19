@@ -7,9 +7,11 @@ This directory contains tooling for:
 - provisioning VMs (1 control, 3 workers) based on the created template (Terraform)
 - installation and configuration of Kubernetes (Ansible)
   - DONE:
-    - install networking [antrea]
-  - TODO: 
-    - install metrics, loadbalancer [metallb], storage [OpenEBS], ingress [contour]
+    - networking [`antrea`](https://antrea.io/docs/main/docs/getting-started/)
+    - [`metrics-server`](https://github.com/kubernetes-sigs/metrics-server)
+    - loadbalancer [`metallb`](https://metallb.org/installation/)
+    - storage [`OpenEBS`](https://openebs.io/docs/user-guides/localpv-hostpath#install)
+    - ingress [`contour`](https://projectcontour.io/getting-started/#option-1-yaml)
 
 ### Required:
 
@@ -64,8 +66,23 @@ To join the cluster from the workers:
   ```
   ansible-playbook -i hosts join-workers.yaml -K
   ```
+Once all nodes report STATUS Ready then proceed to perform `post-install.yaml`
 
-Please see [2-installk8s/k8s_notes.sh](2-installk8s/k8s_notes.sh) for instructions to install [`metrics-server`](https://github.com/kubernetes-sigs/metrics-server), loadbalancer [`metallb`](https://metallb.org/installation/), storage [`OpenEBS`](https://openebs.io/docs/user-guides/localpv-hostpath#install), ingress [`contour`](https://projectcontour.io/getting-started/#option-1-yaml)
+    ```
+    #  kubectl get nodes
+    NAME       STATUS   ROLES           AGE   VERSION
+    control0   Ready    control-plane   46h   v1.25.5
+    worker0    Ready    <none>          46h   v1.25.5
+    worker1    Ready    <none>          46h   v1.25.5
+    worker2    Ready    <none>          46h   v1.25.5
+    ```
+
+Once networking is up you can install metrics-server, metallb, contour, openEBS:
+
+- from `2-installk8s` directory, run:
+  ```
+  ansible-playbook -i hosts post-install.yaml -K
+  ```
 
 
 ## References:

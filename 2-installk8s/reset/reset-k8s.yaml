@@ -19,3 +19,7 @@
     - name: reset iptables
       shell: |
               sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X
+    
+    - name: reboot
+      shell: |
+              sudo reboot
