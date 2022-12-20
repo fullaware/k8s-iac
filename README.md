@@ -12,7 +12,7 @@ This directory contains tooling for:
     - loadbalancer [`metallb`](https://metallb.org/installation/)
     - storage [`OpenEBS`](https://openebs.io/docs/user-guides/localpv-hostpath#install)
     - ingress [`contour`](https://projectcontour.io/getting-started/#option-1-yaml)
-    - management ['Portainer'](https://docs.portainer.io/start/install/server/kubernetes/baremetal#deploy-using-yaml-manifests)
+    - management [`Portainer`](https://docs.portainer.io/start/install/server/kubernetes/baremetal#deploy-using-yaml-manifests)
 
 ### Required:
 
